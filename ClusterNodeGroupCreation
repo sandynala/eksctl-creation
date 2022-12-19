@@ -19,14 +19,14 @@ sudo ./aws/install
 aws --version
 
 
-                                                         ************kubectl********** , if your EKS is 1.23 , need to install kubectl of 1.22 version 
+                                                         ************kubectl********** (if your EKS is 1.24 , need to install kubectl of 1.23 version) 
 
 
-* curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.22.6/2022-03-09/bin/linux/amd64/kubectl            --amd64
-curl -o kubectl.sha256 https://s3.us-west-2.amazonaws.com/amazon-eks/1.22.6/2022-03-09/bin/linux/amd64/kubectl.sha256
+* curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.23.13/2022-10-31/bin/linux/amd64/kubectl            --amd64
+  curl -o kubectl.sha256 https://s3.us-west-2.amazonaws.com/amazon-eks/1.23.13/2022-10-31/bin/linux/amd64/kubectl.sha256
 
-curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.22.6/2022-03-09/bin/linux/arm64/kubectl   --arm64
-curl -o kubectl.sha256 https://s3.us-west-2.amazonaws.com/amazon-eks/1.22.6/2022-03-09/bin/linux/arm64/kubectl.sha256
+* curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.23.13/2022-10-31/bin/linux/arm64/kubectl   --arm64
+  curl -o kubectl.sha256 https://s3.us-west-2.amazonaws.com/amazon-eks/1.23.13/2022-10-31/bin/linux/arm64/kubectl.sha256 
 
 openssl sha1 -sha256 kubectl
 chmod +x ./kubectl
@@ -39,6 +39,10 @@ aws configure
 aws sts get-caller-identity
 
 
+### To list all users with attached policies
+
+	aws iam list-users |grep -i username > list_users ; cat list_users |awk '{print $NF}' |tr '\"' ' ' |tr '\,' ' '|while read user; do echo "\n\n--------------Getting information for user $user-----------\n\n" ; aws iam list-user-policies --user-name $user --output yaml; aws iam list-groups-for-user  --user-name $user --output yaml;aws iam  list-attached-user-policies --user-name $user --output yaml ;done ;echo;echo
+
 
                                                              ***********eksctl**********
 
@@ -49,9 +53,9 @@ eksctl version
 
    >>>cluster creation
 
-	eksctl create cluster --name <cluster-name> --region <region-code> --zones=<zone-name> --without-nodegroup --version=1.23
+	eksctl create cluster --name <cluster-name> --region <region-code> --zones=<zone-name> --without-nodegroup --version=1.24
 
-	eksctl create cluster --name nv-cluster --region us-east-1 --zones=us-east-1a,us-east-1b,us-east-1c --without-nodegroup --version=1.23
+	eksctl create cluster --name nv-cluster --region us-east-1 --zones=us-east-1a,us-east-1b,us-east-1c --without-nodegroup --version=1.24
 
 
  >>>get list of clusters
