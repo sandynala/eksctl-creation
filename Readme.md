@@ -2,7 +2,7 @@
 
 ## Step-1: Create IAM user and provide admin credentials
  
-    created "eks-user" and attached admin access to the user
+   Created "eks-user" and attached admin access to the user
 
 ## Step-2: Install unzip,AWS CLI,Kubectl and eksctl. Check kernerl info before Installation
 
