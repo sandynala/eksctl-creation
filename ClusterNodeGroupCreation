@@ -110,6 +110,16 @@ nodegroup upgradtion:
 
 	eksctl upgrade nodegroup --name=nv-ng --cluster=nv-cluster
 
+#### scale down worker nodes use below commands ####
+
+ eksctl scale nodegroup --cluster (given cluster name) --name (node-group name) --nodes 0 --nodes-min 0
+
+
+#### scale up worker nodes use below commands ####
+
+ eksctl scale nodegroup --cluster (given cluster name) --name (node-group name) --nodes 0 --nodes-min (given minimum range in worker node provide that one)
+
+
 nodegroup deletion:
 
 	eksctl delete nodegroup --cluster=<clusterName> --name=<nodegroupName>
