@@ -29,26 +29,27 @@
                                                       
   ### To install kubectl, use the below commands: (if your EKS is 1.24 , you need to install kubectl of 1.23 version) 
 
-    curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.23.13/2022-10-31/bin/linux/amd64/kubectl            --amd64
-    curl -o kubectl.sha256 https://s3.us-west-2.amazonaws.com/amazon-eks/1.23.13/2022-10-31/bin/linux/amd64/kubectl.sha256
-
-    curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.23.13/2022-10-31/bin/linux/arm64/kubectl   --arm64
-    curl -o kubectl.sha256 https://s3.us-west-2.amazonaws.com/amazon-eks/1.23.13/2022-10-31/bin/linux/arm64/kubectl.sha256 
-
-    openssl sha1 -sha256 kubectl
+   ### Kubernetes 1.30(amd 64)
+     curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.30.4/2024-09-11/bin/linux/amd64/kubectl
+     curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.30.4/2024-09-11/bin/linux/amd64/kubectl.sha256
+  ### Kubernetes 1.30(arm 64)
+    curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.30.4/2024-09-11/bin/linux/arm64/kubectl
+    curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.30.4/2024-09-11/bin/linux/arm64/kubectl.sha256
+    
+    sha256sum -c kubectl.sha256(When using this command, make sure that you see the following output:kubectl: OK)
+    openssl sha1 -sha256 kubectl 
     chmod +x ./kubectl
-    mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$PATH:$HOME/bin
+    mkdir -p $HOME/bin && cp ./kubectl $HOME/bin/kubectl && export PATH=$HOME/bin:$PATH
     echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
-    kubectl version --short --client
+    kubectl version --client
 
-
-> To configure credentials, use the below command:
+## To configure credentials, use the below command:
 
     aws configure
     aws sts get-caller-identity
 
 
-> To list all users with attached policies, use the below command:
+## To list all users with attached policies, use the below command:
 
 	aws iam list-users |grep -i username > list_users ; cat list_users |awk '{print $NF}' |tr '\"' ' ' |tr '\,' ' '|while read user; do echo "\n\n--------------Getting information for user $user-----------\n\n" ; aws iam list-user-policies --user-name $user --output yaml; aws iam list-groups-for-user  --user-name $user --output yaml;aws iam  list-attached-user-policies --user-name $user --output yaml ;done ;echo;echo
 
@@ -63,16 +64,16 @@
 
 ## Step-3:  Cluster Creation
 
-	eksctl create cluster --name <cluster-name> --region <region-code> --zones=<zone-name> --without-nodegroup --version=1.24
+	eksctl create cluster --name <cluster-name> --region <region-code> --zones=<zone-name> --without-nodegroup --version=1.31
 
-	eksctl create cluster --name nv-cluster --region us-east-1 --zones=us-east-1a,us-east-1b,us-east-1c --without-nodegroup --version=1.24
+	eksctl create cluster --name nv-cluster --region us-east-1 --zones=us-east-1a,us-east-1b,us-east-1c --without-nodegroup --version=1.31
 
 
-> get list of clusters
+## get list of clusters
 
 	eksctl get cluster   
 
-> To enable and use AWS IAM roles for Kubernetes service accounts on our EKS cluster, we must create & associate OIDC identity provider.
+## To enable and use AWS IAM roles for Kubernetes service accounts on our EKS cluster, we must create & associate OIDC identity provider.
 
 
     eksctl utils associate-iam-oidc-provider \
@@ -87,50 +88,51 @@
 
 
 ## Step-4:Creating Managed-Nodegroups
+  eksctl create nodegroup \
+  --cluster nv-cluster \
+  --region ap-south-1 \
+  --name nv-ng \
+  --node-type t2.large \
+  --nodes 3 \
+  --nodes-min 2 \
+  --nodes-max 4 \
+  --node-volume-size 20 \
+  --ssh-access \
+  --ssh-public-key="<your-ssh-key-name>" \
+  --managed \
+  --asg-access \
+  --external-dns-access \
+  --full-ecr-access \
+  --appmesh-access \
+  --alb-ingress-access
+      
+  ## if you want to launch nodes in private , use flag --node-private-networking
 
-    eksctl create nodegroup --cluster=nv-cluster \
-                          --region=us-east-1 \
-                          --name=nv-ng \
-                          --node-type=t2.medium \
-                          --nodes=2 \
-                          --nodes-min=2 \
-                          --nodes-max=4 \
-                          --node-volume-size=20 \
-                          --ssh-access \
-                          --ssh-public-key=amazonfirst-JavMvnJenTom \
-                          --managed \
-                          --asg-access \
-                          --external-dns-access \
-                          --full-ecr-access \
-                          --appmesh-access \
-                          --alb-ingress-access  
-   if you want to launch nodes in private , use flag --node-private-networking
+## Note: Need to create key-pair first 
 
-> Note: Need to create key-pair first 
-
-> List NodeGroups in a cluster
+##  List NodeGroups in a cluster
 
     eksctl get nodegroup --cluster=<clusterName>
 
-> List Nodes in current kubernetes cluster
+## List Nodes in current kubernetes cluster
 
     kubectl get nodes -o wide
 
-> Cluster Upgradation:
+## Cluster Upgradation:
 
 	eksctl upgrade cluster --name=nv-cluster --version=1.23
 
-> Nodegroup Upgradation:
+## Nodegroup Upgradation:
 
 	eksctl upgrade nodegroup --name=nv-ng --cluster=nv-cluster
 
-> Nodegroup Deletion:
+## Nodegroup Deletion:
 
 	eksctl delete nodegroup --cluster=<clusterName> --name=<nodegroupName>
 
 	eksctl delete nodegroup --cluster=nv-cluster --name=nv-ng
 
-> Cluster Deletion:
+## Cluster Deletion:
 
     eksctl delete cluster <name of the cluster>
     eksctl delete cluster nv-cluster
