@@ -27,7 +27,7 @@
 
 
                                                       
-  ### To install kubectl, use the below commands: (if your EKS is 1.24 , you need to install kubectl of 1.23 version) 
+  ### To install kubectl, use the below commands: (if your EKS is 1.31 , minor version you need to install kubectl of 1.30 version) 
 
    ### Kubernetes 1.30(amd 64)
      curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.30.4/2024-09-11/bin/linux/amd64/kubectl
